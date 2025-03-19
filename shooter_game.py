@@ -1,93 +1,12 @@
 from pygame import *
 from random import randint
 from time import time as true_time
-# вынесем размер окна в константы для удобства
-# W - width, ширина
-# H - height, высота
-WIN_W = 700
-WIN_H = 500
-FPS = 60
-RED = (250,0,0)
-WHITE = (250,250,250)
-YELLOW = (255,245,22)
-ROCKET_W = 35
-ROCKET_H = 65
-UFO_W = 50
-UFO_H = 30
-ROCK_W = 50
+from const import *
+from game_sprite import GameSprite
+from player import Player
+from enemy import Enemy
+from bullet import Bullet
 
-WIN_COUNT = 10
-UFO = 5
-HP = 3
-ROCK = 3
-RECHARGE_TIME = 2
-SHOTS = 6
-class GameSprite(sprite.Sprite):
-    def __init__(self,img,x,y,width,height):
-        super().__init__()
-        self.image = transform.scale(
-            image.load(img),
-            # здесь - размеры картинки
-            (width,height)
-        )
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        
-    def draw(self,window):
-        window.blit(self.image,(self.rect.x,self.rect.y))
-# создание окна размером 700 на 500
-
-
-class Player(GameSprite):
-    def __init__(self,img,x,y,width,height,speed = 3, hp = HP):
-        super().__init__(img,x,y,width,height,)
-        self.speed = speed
-        self.count = 0
-        self.missed = 0
-        self.bullets = sprite.Group()
-        self.hp = hp
-        self.is_recharge = False
-        self.shots = 0
-        
-    def update(self):
-        keys = key.get_pressed()
-        if self.rect.x > 0 and keys[K_a]:
-            self.rect.x -= self.speed
-        if self.rect.x < WIN_W - self.rect.width and keys[K_d]:
-            self.rect.x += self.speed
-            
-    def fire(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top)
-        self.bullets.add(bullet)
-        self.shots += 1
-
-
-class Enemy(GameSprite):
-    def __init__(self,img,x,y,width,height,):
-        super().__init__(img,x,y,width,height,)
-        self.speed = randint(1,2)
-        self.rect.y = randint(10,50)
-        self.rect.x = randint(0,WIN_W-self.rect.width)
-        
-    def update(self, player, skippable = False):
-        if self.rect.y > WIN_H:
-            self.rect.y = randint(10,50)
-            self.rect.x = randint(0,WIN_W-self.rect.width)
-            if not skippable:
-                player.missed += 1
-        self.rect.y += self.speed
-
-
-class Bullet(GameSprite):
-    def __init__(self,x,y,width = 5,height = 10,speed = 3,img = 'bullet.png'):
-        super().__init__(img,x,y,width,height,)
-        self.speed = speed
-        
-    def update(self):
-        if self.rect.y < 0:
-            self.kill()
-        self.rect.y -= self.speed
 
 window = display.set_mode((WIN_W, WIN_H))
 display.set_caption("Лабиринт")
@@ -113,17 +32,17 @@ win = title_font.render('вы выиграли', True, RED)
 lost = title_font.render('вы проиграли', True, WHITE)
 
 # задать картинку фона такого же размера, как размер окна
-background = GameSprite('galaxy.jpg', 0,0,WIN_W,WIN_H)
-rocket = Player('rocket.png',(WIN_W - ROCKET_W)// 2,WIN_H - ROCKET_H, ROCKET_W,ROCKET_H)
+background = GameSprite('src/galaxy.jpg', 0,0,WIN_W,WIN_H)
+rocket = Player('src/rocket.png',(WIN_W - ROCKET_W)// 2,WIN_H - ROCKET_H, ROCKET_W,ROCKET_H)
 
 ufos = sprite.Group()
 for i in range(UFO):
-    enemy = Enemy('ufo.png',0,0,UFO_W,UFO_H)
+    enemy = Enemy('src/ufo.png',0,0,UFO_W,UFO_H)
     ufos.add(enemy)
 
 rocks = sprite.Group()
 for i in range(ROCK):
-    enemy = Enemy('asteroid.png',0,0,ROCK_W,ROCK_W)
+    enemy = Enemy('src/asteroid.png',0,0,ROCK_W,ROCK_W)
     rocks.add(enemy)
 
 start_time = None
@@ -177,7 +96,7 @@ while game:
         )
         for collide in ufo_vs_bullet:
             rocket.count += 1
-            enemy = Enemy('ufo.png',0,0,UFO_W,UFO_H)
+            enemy = Enemy('src/ufo.png',0,0,UFO_W,UFO_H)
             ufos.add(enemy)
 
         ufos_collide = sprite.spritecollide(
@@ -212,16 +131,16 @@ while game:
         for r in rocks:
             r.kill()
         time.delay(3000)
-        rocket = Player('rocket.png',(WIN_W - ROCKET_W)// 2,WIN_H - ROCKET_H, ROCKET_W,ROCKET_H)
+        rocket = Player('src/rocket.png',(WIN_W - ROCKET_W)// 2,WIN_H - ROCKET_H, ROCKET_W,ROCKET_H)
 
         ufos = sprite.Group()
         for i in range(UFO):
-            enemy = Enemy('ufo.png',0,0,UFO_W,UFO_H)
+            enemy = Enemy('src/ufo.png',0,0,UFO_W,UFO_H)
             ufos.add(enemy)
 
         rocks = sprite.Group()
         for i in range(ROCK):
-            enemy = Enemy('asteroid.png',0,0,ROCK_W,ROCK_W)
+            enemy = Enemy('src/asteroid.png',0,0,ROCK_W,ROCK_W)
             rocks.add(enemy)
         finish = False
     # обновить экран, чтобы отобрзить все изменения
